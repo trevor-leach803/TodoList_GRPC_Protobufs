@@ -8,3 +8,5 @@ edit first_item COMPLETED
 add  fourth_item IN_PROGRESS
 try fifth_item NOT_STARTED
 edit third_item COMPLETED
+add walk the dog IN_PROGRESS
+add eating dinner NOT_STARTED
