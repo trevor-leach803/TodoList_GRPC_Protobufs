@@ -24,27 +24,35 @@ class TodoManager(object):
 
 
     def user_input(self):
+        # This function accepts user input to add items to the to-do list
         add_more = 'Y'
+        # Clear the screen and print the list of to-do items 
         self.clear_screen()
         self.print_todos()
 
         while add_more.upper() == 'Y' or add_more.upper() == 'YES':
             in_title = input('Enter a to-do item: ')
-            if not in_title:
+            if not in_title: # If the user input not title and presses enter, exit
                 break
-            while True:
+            while True: # Take in the status of the item
                 item_started = input('Has the to-do item been started? Y/N: ')
+                # Create the item to be sent to the server
                 if item_started.upper() == 'Y' or item_started.upper() == 'YES':
                     in_status = pb2.TodoItem.IN_PROGRESS
                     break
                 elif item_started.upper() == 'N' or item_started.upper() == 'NO':
                     in_status = pb2.TodoItem.NOT_STARTED
                     break
+                elif not item_started: # Exit if user enters no status
+                    return
                 else:
                     print('Invalid input. Enter Y or N.')
             
+            # If the item fails to add to the list (i.e. if it is already in the list), print and exit
             if not self.stub.AddTodo(pb2.TodoItem(title=in_title, status=in_status)).success:
                 print('To-do item already exists.')
+                sleep(2)
+                return
 
             self.clear_screen()
             self.print_todos()
@@ -54,13 +62,16 @@ class TodoManager(object):
 
 
     def update_item(self):
+        # This function takes user input to update the status of an item
         while True:
             self.clear_screen()
             self.print_todos()
+            # Collect the item's title
             edit_title = input('Input the title of the to-do item to update: ')
-            if not edit_title:
+            if not edit_title: # Exit if the user enters no title
                 self.clear_screen()
                 return
+            # Collect the item's new status
             edit_status = input(dedent('''\
                 What is the new status of the to-do item?
                 1. Not started
@@ -69,6 +80,7 @@ class TodoManager(object):
 
                 Status: '''))
 
+            # If incorrect input, either exit if none received or re-prompt if out of range
             while not edit_status or int(edit_status) < 0 or int(edit_status) > 3:
                 if not edit_status:
                     self.clear_screen()
@@ -76,6 +88,7 @@ class TodoManager(object):
                 print('Invalid input')
                 edit_status = input('Select a status number from the above list: ')
 
+            # Create the item to be sent to the server
             if edit_status == '1':
                 edit_status = pb2.TodoItem.NOT_STARTED
             elif edit_status == '2':
@@ -83,6 +96,7 @@ class TodoManager(object):
             elif edit_status == '3':
                 edit_status = pb2.TodoItem.COMPLETED
 
+            # Send the item and new status to the server. If it fails (i.e. the item is not in the list), print and exit
             if not self.stub.EditTodo(pb2.TodoItem(title=edit_title.lower(), status=edit_status)).success:
                 print('Item is not in to-do list.')
                 sleep(2)
@@ -92,11 +106,12 @@ class TodoManager(object):
             
     
     def file_input(self):
+        # This function finds a text file and attempts to add to-do items from it
         self.clear_screen()
-        test_file = input('\nEnter the file name of todo items (include .txt): ')
-        if not test_file:
+        test_file = input('\nEnter the file name of to-do items if in the current directory or a relative file path (include .txt): ')
+        if not test_file: # If nothing input, print and exit
             print('No input file received.')
-        else:
+        else: # Otherwise, try to add the items to the list
             try:
                 self.file_provided(test_file)
                 print('To-do list items added.')
@@ -116,9 +131,13 @@ class TodoManager(object):
 
         # For each line in the file, run the respective command
         for line in split_lines:
-            input_title = line[1]
-            input_status = line[2]
-            # Convert the string status so it can be sent to the server
+            if len(line[1:-1]) == 1: # If the item is one word, assign it to input_title
+                input_title = line[1]
+            else: # Otherwise, collect the words and join them together
+                input_title_separated = line[1:-1]
+                input_title = ' '.join(input_title_separated)
+            input_status = line[-1]
+            # Convert the string status to an item so it can be sent to the server
             if input_status == 'NOT_STARTED':
                 input_status = pb2.TodoItem.NOT_STARTED
             elif input_status == 'IN_PROGRESS':
@@ -127,11 +146,11 @@ class TodoManager(object):
                 input_status = pb2.TodoItem.COMPLETED
 
             if line[0] == 'add':
-                res = self.stub.AddTodo(pb2.TodoItem(title=input_title, status=input_status)).status
+                res = self.stub.AddTodo(pb2.TodoItem(title=input_title, status=input_status)).success
                 if res == False:
                     print("Failed to add '{}' to the todo list".format(input_title))
             elif line[0] == 'edit':
-                res = self.stub.EditTodo(pb2.TodoItem(title=input_title, status=input_status)).status
+                res = self.stub.EditTodo(pb2.TodoItem(title=input_title, status=input_status)).success
                 if res == False:
                     print("Failed to edit '{}' on the todo list".format(input_title))
             else:
@@ -164,16 +183,17 @@ class TodoManager(object):
 
 
     def clear_list(self):
+        # This function clears the to-do list
         self.stub.DelList(pb2.empty())
         print('To-do list cleared.\n')
         sleep(2)
         self.clear_screen()
 
     def clear_screen(self):
+        # This function clears the terminal so that the user has a cleaner interface
         os.system('cls' if os.name == 'nt' else 'clear')
 
 def main(client):
-    # Establish the client and server connection
     while True:
         option = input(dedent('''\
             Enter the number of what you would like to do:
@@ -212,6 +232,8 @@ def main(client):
 
 
 if __name__ == '__main__':
+    # Establish the client and server connection
     client = TodoManager()
     client.clear_screen()
+    # Run the script
     main(client)
