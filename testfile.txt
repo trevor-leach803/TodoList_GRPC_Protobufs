@@ -1,0 +1,10 @@
+add  first_item  NOT_STARTED
+add  second_item NOT_STARTED
+edit first_item  IN_PROGRESS
+add  third_item  NOT_STARTED
+edit third_item  IN_PROGRESS
+edit first_item  NOT_STARTED
+edit first_item COMPLETED
+add  fourth_item IN_PROGRESS
+try fifth_item NOT_STARTED
+edit third_item COMPLETED

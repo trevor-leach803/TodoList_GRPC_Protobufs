@@ -1,0 +1,32 @@
+syntax = 'proto3';
+
+package protos;
+
+message TodoItem {
+    enum TodoStatus {
+        NOT_STARTED = 0;
+        IN_PROGRESS = 1;
+        COMPLETED = 2;
+    }
+    
+    string title = 1;
+    TodoStatus status = 2;
+}
+
+message TodoList {
+    repeated TodoItem items = 1;
+}
+
+message TodoResponse {
+    bool success = 1;
+}
+
+message empty {
+}
+
+service TodoManager {
+    rpc AddTodo (TodoItem) returns (TodoResponse);
+    rpc EditTodo (TodoItem) returns (TodoResponse);
+    rpc DelList (empty) returns (TodoList);
+    rpc GetTodos (empty) returns (TodoList);
+}
