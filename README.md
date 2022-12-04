@@ -14,7 +14,9 @@ The user is provided with 7 options:
 7. Quit the program
 
 This code makes use of protobufs to create the methods for communicating between the client and server. 
+
 Compile the .proto file containing the RPC information using the following at the command line:
+
 python -m grpc_tools.protoc --proto_path=. ./todo.proto --python_out=. --grpc_python_out=.
 
 This is a good example of how to use GRPCs and Protobufs together: https://www.velotio.com/engineering-blog/grpc-implementation-using-python
