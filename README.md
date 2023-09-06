@@ -4,6 +4,10 @@ This project initially served to complete an assignment for CSIS 604 at the Coll
 
 The server will maintain a to-do list that contains the item title and its status. Once an item's status changes to Completed, the item is removed from the to-do list automatically.
 
+To run:
+1. Run todo_server.py
+2. Run todo_client.py
+
 The user is provided with 7 options:
 1. Running the script with default options (just to show how it works; not really necessary)
 2. Take in a text file in format <COMMAND> <TODO ITEM TITLE> <ITEM STATUS> and add them to the list
